@@ -30,7 +30,6 @@ class ActorStart(next:ActorRef) extends Actor {
 
   implicit val executionContext = context.dispatcher
 
-
   implicit val duration:Timeout = 20 seconds
 
   override def receive: Receive = {

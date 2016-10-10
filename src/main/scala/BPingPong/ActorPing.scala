@@ -8,9 +8,10 @@ object ActorPing {
 
 class ActorPing(actorPong:ActorRef) extends Actor{
   override def receive: Receive = {
-    case "ping" =>
+    case "start" => actorPong ! "ping"
+    case "pong" =>
       println("ping")
-      actorPong ! "pong"
+      actorPong ! "ping"
   }
 }
 
@@ -20,8 +21,8 @@ object ActorPong {
 
 class ActorPong extends Actor{
   override def receive: Receive = {
-    case "pong" =>
+    case "ping" =>
       println("pong")
-      sender() ! "ping"
+      sender() ! "pong"
   }
 }

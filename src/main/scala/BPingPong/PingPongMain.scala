@@ -2,13 +2,17 @@ package BPingPong
 
 import akka.actor.ActorSystem
 
-object PingPongMain extends App{
+object PingPongMain extends App {
 
   val system = ActorSystem("pingpong")
 
   val apong = system.actorOf(ActorPong.props)
   val actorPing = system.actorOf(ActorPing.props(apong))
 
-  actorPing ! "ping"
+  actorPing ! "start"
 
+  println("enter to continue")
+  scala.io.StdIn.readLine()
+
+  system.terminate()
 }
