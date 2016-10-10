@@ -10,10 +10,10 @@ object ActorPing {
 
 class ActorPing extends Actor{
   override def receive: Receive = {
-    case PingTo(actor) => actor ! "ping"
+    case PingTo(actor) => actor ! "ping" // TELL
     case "pong" =>
       println("ping")
-      sender() ! "ping"
+      sender() ! "ping" // SENDER
   }
 }
 

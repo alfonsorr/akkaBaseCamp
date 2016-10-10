@@ -12,8 +12,7 @@ object PipeAskMain extends App {
     l2 <- 'a' to 'z'
     l3 <- 'a' to 'z'
     l4 <- 'a' to 'z'
-    l5 <- 'a' to 'z'
-  } yield s"$l1$l2$l3$l4$l5"
+  } yield s"$l1$l2$l3$l4"
     ).toList
 
   val actorCoord = system.actorOf(ActorCoordinator.props)

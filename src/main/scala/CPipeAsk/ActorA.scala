@@ -13,7 +13,7 @@ class ActorAppendString(next:Option[ActorRef], textToAppend:String) extends Acto
     case text:String =>
       val fullText = text + textToAppend
       next match {
-        case Some(actor) => actor forward fullText
+        case Some(actor) => actor forward fullText //FORWARD
         case None => sender() ! fullText
       }
   }
@@ -48,6 +48,10 @@ class ActorCoordinator extends Actor with ActorLogging{
     case CleanList =>
       actorsList.foreach(_ ! PoisonPill)
       actorsList = List.empty[ActorRef]
-    case Start => actorsList.headOption.foreach(actor => (actor ? "").mapTo[String].map(log.info))
+    case Start => actorsList.headOption.foreach(actor => {
+      val future = (actor ? "").mapTo[String]  // ASK
+      future.map(log.info)
+      future.onFailure{case t => log.error(t.getMessage)}
+    })
   }
 }

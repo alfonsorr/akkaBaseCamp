@@ -1,10 +1,10 @@
 package ASimpleActor
 
 import ASimpleActor.SimpleActor.{PrintAll, Put, PutTwice}
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 
 object SimpleActor {
-  def props = Props[SimpleActor]
+  def props = Props[SimpleActor] // GOOD MANNERS
   case class PutTwice(s:String)
   case class Put(s:String)
   case object PrintAll
@@ -14,7 +14,7 @@ class SimpleActor extends Actor with ActorLogging{
 
   var list:List[String] = List.empty[String]
 
-  override def receive: Receive = {
+  override def receive: Receive = { // RECEIVE
     case PutTwice(s) => list = s :: s :: list
     case Put(s) => list = s :: list
     case PrintAll => println(list.mkString(", "))
@@ -22,22 +22,3 @@ class SimpleActor extends Actor with ActorLogging{
   }
 }
 
-object SimpleActorMain extends App {
-  val system = ActorSystem("simpleActor")
-
-  val simpleActor = system.actorOf(SimpleActor.props)
-
-  simpleActor ! Put("hola")
-  simpleActor ! 42
-  simpleActor ! PutTwice("a message")
-
-  println("enter to continue")
-  scala.io.StdIn.readLine()
-  simpleActor ! PrintAll
-
-  println("enter to continue")
-  scala.io.StdIn.readLine()
-
-  system.terminate()
-
-}

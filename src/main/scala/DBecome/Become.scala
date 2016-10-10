@@ -15,7 +15,7 @@ class OrderActor extends Actor with ActorLogging{
   override def receive: Receive = receiveA
 
   def receiveA:Receive = {
-    case A => context.become(receiveB)
+    case A => context.become(receiveB) // Become
     case _ => log.error("that was unexpected (and not an A)")
   }
 
