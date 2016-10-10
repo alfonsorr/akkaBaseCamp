@@ -1,7 +1,7 @@
 package ASimpleActor
 
 import ASimpleActor.SimpleActor.{PrintAll, Put, PutTwice}
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 
 object SimpleActor {
   def props = Props[SimpleActor]
@@ -10,7 +10,7 @@ object SimpleActor {
   case object PrintAll
 }
 
-class SimpleActor extends Actor{
+class SimpleActor extends Actor with ActorLogging{
 
   var list:List[String] = List.empty[String]
 
@@ -18,7 +18,7 @@ class SimpleActor extends Actor{
     case PutTwice(s) => list = s :: s :: list
     case Put(s) => list = s :: list
     case PrintAll => println(list.mkString(", "))
-    case _ => println("not a string")
+    case _ => log.error("not expected")
   }
 }
 
@@ -27,9 +27,13 @@ object SimpleActorMain extends App {
 
   val simpleActor = system.actorOf(SimpleActor.props)
 
-  simpleActor ! "hola"
+  simpleActor ! Put("hola")
   simpleActor ! 42
   simpleActor ! PutTwice("a message")
+
+  println("enter to continue")
+  scala.io.StdIn.readLine()
+  simpleActor ! PrintAll
 
   println("enter to continue")
   scala.io.StdIn.readLine()

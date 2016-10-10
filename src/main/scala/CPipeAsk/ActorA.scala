@@ -1,6 +1,7 @@
 package CPipeAsk
 
-import akka.actor.{Actor, ActorRef, Props}
+import CPipeAsk.ActorCoordinator.{CleanList, SetWords, Start}
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.util.Timeout
 
 object ActorAppendString{
@@ -18,22 +19,35 @@ class ActorAppendString(next:Option[ActorRef], textToAppend:String) extends Acto
   }
 }
 
-object ActorStart{
-  object Start
-  def props(firstAppenderActor:ActorRef) = Props(new ActorStart(firstAppenderActor))
+object ActorCoordinator {
+  def props = Props[ActorCoordinator]
+  case class SetWords(list:List[String])
+  case object CleanList
+  case object Start
 }
 
-class ActorStart(next:ActorRef) extends Actor {
+class ActorCoordinator extends Actor with ActorLogging{
+
   import akka.pattern.ask
   import scala.concurrent.duration._
   import akka.util.Timeout._
 
   implicit val executionContext = context.dispatcher
+  implicit val duration:Timeout = 2 seconds
 
-  implicit val duration:Timeout = 20 seconds
+  var actorsList = List.empty[ActorRef]
+
+  def createChilds(listOfWords:List[String]):List[ActorRef] = {
+    listOfWords.reverse.foldLeft(List.empty[ActorRef])((nextActor, word) =>
+      context.actorOf(ActorAppendString.props(word, nextActor.headOption)) :: nextActor)
+  }
+
 
   override def receive: Receive = {
-    case ActorStart.Start => (next ? "").mapTo[String].map(println)
+    case SetWords(wordList) => actorsList = createChilds(wordList)
+    case CleanList =>
+      actorsList.foreach(_ ! PoisonPill)
+      actorsList = List.empty[ActorRef]
+    case Start => actorsList.headOption.foreach(actor => (actor ? "").mapTo[String].map(log.info))
   }
 }
-

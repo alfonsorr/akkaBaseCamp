@@ -1,4 +1,4 @@
-package EFSM
+package FFSM
 
 import akka.actor.FSM
 

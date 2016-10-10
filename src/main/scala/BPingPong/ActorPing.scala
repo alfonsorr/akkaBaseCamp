@@ -1,17 +1,19 @@
 package BPingPong
 
+import BPingPong.ActorPing.PingTo
 import akka.actor.{Actor, ActorRef, Props}
 
 object ActorPing {
-  def props(actorPong:ActorRef) = Props(new ActorPing(actorPong))
+  def props = Props[ActorPing]
+  case class PingTo(actor:ActorRef)
 }
 
-class ActorPing(actorPong:ActorRef) extends Actor{
+class ActorPing extends Actor{
   override def receive: Receive = {
-    case "start" => actorPong ! "ping"
+    case PingTo(actor) => actor ! "ping"
     case "pong" =>
       println("ping")
-      actorPong ! "ping"
+      sender() ! "ping"
   }
 }
 

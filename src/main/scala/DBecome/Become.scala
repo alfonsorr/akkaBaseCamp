@@ -2,7 +2,7 @@ package DBecome
 
 import ASimpleActor.SimpleActor.PutTwice
 import DBecome.OrderActor.{A, B, C}
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 
 object OrderActor {
   def props = Props[OrderActor]
@@ -11,27 +11,27 @@ object OrderActor {
   case object C
 }
 
-class OrderActor extends Actor{
+class OrderActor extends Actor with ActorLogging{
   override def receive: Receive = receiveA
 
   def receiveA:Receive = {
     case A => context.become(receiveB)
-    case _ => println("that was unexpected")
+    case _ => log.error("that was unexpected (and not an A)")
   }
 
   def receiveB:Receive = {
     case B => context.become(receiveC)
-    case _ => println("that was unexpected")
+    case _ => log.error("that was unexpected (and not an B)")
   }
 
   def receiveC:Receive = {
     case C => context.become(receiveA)
-    case _ => println("that was unexpected")
+    case _ => log.error("that was unexpected (and not an C)")
   }
 }
 
-object SimpleActorMain extends App {
-  val system = ActorSystem("simpleActor")
+object BecomeMain extends App {
+  val system = ActorSystem("becomeActor")
 
   val simpleActor = system.actorOf(OrderActor.props)
 
