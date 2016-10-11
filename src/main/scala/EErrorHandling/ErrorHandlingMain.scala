@@ -11,4 +11,6 @@ object ErrorHandlingMain extends App{
 
   println("enter to continue")
   scala.io.StdIn.readLine()
+
+  system.terminate()
 }
