@@ -4,17 +4,23 @@ import CPipeAsk.ActorCoordinator.{CleanList, SetWords, Start}
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.util.Timeout
 
+import scala.util.Random
+
 object ActorAppendString{
   def props(textToAppend:String, nextActor: Option[ActorRef] = None) = Props(new ActorAppendString(nextActor, textToAppend ))
 }
 
-class ActorAppendString(next:Option[ActorRef], textToAppend:String) extends Actor{
+class ActorAppendString(next:Option[ActorRef], textToAppend:String) extends Actor with ActorLogging{
   override def receive: Receive = {
     case text:String =>
       val fullText = text + textToAppend
       next match {
-        case Some(actor) => actor forward fullText //FORWARD
-        case None => sender() ! fullText
+        case Some(actor) =>
+          log.info(s"appending $textToAppend")
+          actor forward fullText //FORWARD
+        case None =>
+          log.info(s"appending $textToAppend")
+          sender() ! fullText
       }
   }
 }
@@ -39,19 +45,19 @@ class ActorCoordinator extends Actor with ActorLogging{
 
   def createChilds(listOfWords:List[String]):List[ActorRef] = {
     listOfWords.reverse.foldLeft(List.empty[ActorRef])((nextActor, word) =>
-      context.actorOf(ActorAppendString.props(word, nextActor.headOption)) :: nextActor)
+      context.actorOf(ActorAppendString.props(word, nextActor.headOption), s"$word$$${Random.nextInt()}") :: nextActor)
   }
 
 
   override def receive: Receive = {
     case SetWords(wordList) => actorsList = createChilds(wordList)
-    case CleanList =>
-      actorsList.foreach(_ ! PoisonPill)
-      actorsList = List.empty[ActorRef]
     case Start => actorsList.headOption.foreach(actor => {
       val future = (actor ? "").mapTo[String]  // ASK
       future.map(log.info)
       future.onFailure{case t => log.error(t.getMessage)}
     })
+    case CleanList =>
+      actorsList.foreach(_ ! PoisonPill)
+      actorsList = List.empty[ActorRef]
   }
 }
