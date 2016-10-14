@@ -20,9 +20,9 @@ class Father extends Actor with ActorLogging{
 
   implicit val exectionContext = context.dispatcher
 
-  context.system.scheduler.schedule(1 second, 500 milliseconds, childActor, Next)
+  context.system.scheduler.schedule(1 second, 500 milliseconds, childActor, Next) //SCHEDULER
 
-  override val supervisorStrategy =
+  override val supervisorStrategy = //SUPERVISION
     OneForOneStrategy(maxNrOfRetries = 4, withinTimeRange = 1 minute) {
       case _: ArithmeticException      => Resume
       case _: NumberFormatException    => Restart
