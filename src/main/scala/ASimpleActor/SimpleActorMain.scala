@@ -6,7 +6,7 @@ import akka.actor.{ActorRef, ActorSystem}
 object SimpleActorMain extends App {
   val system = ActorSystem("simpleActor") // ACTOR SYSTEM CREATION
 
-  val simpleActor:ActorRef = system.actorOf(SimpleActor.props)
+  val simpleActor:ActorRef = system.actorOf(SimpleActor.props) //ACTOR REF
 
   simpleActor ! Put("hola") // TELL
   simpleActor ! 42
